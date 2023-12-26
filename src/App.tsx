@@ -7,8 +7,8 @@ function App() {
   return (
     <>
       <TopBar />
-      <div className=" w-[50%] mx-auto p-20">
-            <div className=" w-full gap-20 grid grid-cols-2">
+      <div className=" xl:w-[70%] xl:mx-auto mx-20 p-20">
+            <div className=" w-full gap-20 grid lg:grid-cols-2 ">
               {
                 buttons.map(button => (
                   <ButtonContainer name={button.name} link={button.link}/>
