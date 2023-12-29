@@ -5,9 +5,9 @@ export interface Button {
 
 export default function ButtonContainer({ name, link }: Button) {
   return (
-    <div className=" border border-white p-3 rounded-md hover:bg-gray-600 cursor-pointer ">
+    <div className=" border border-white py-4 rounded-md hover:bg-gray-600 cursor-pointer min-w-max ">
       <a href={link}>
-        <h1 className=" text-3xl text-center font-light ">{name}</h1>
+        <h1 className=" md:text-xl text-center xl:font-medium ">{name}</h1>
       </a>
     </div>
   );

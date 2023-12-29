@@ -7,6 +7,6 @@ export const buttons : Button[] = [
     },
     {
       "name": "Baby Dedication Form",
-      "link": "#"
+      "link": "https://form.jotform.com/233624310013136"
     }
   ]
