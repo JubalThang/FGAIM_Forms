@@ -1,17 +1,17 @@
-import { Checkbox } from "./ui/checkbox";
-import { Input }  from "./ui/input";
-import { Label } from "./ui/label";
+import { Checkbox } from "../components/ui/checkbox";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "./ui/select";
-import { Button } from "./ui/button";
+} from "../components/ui/select";
+import { Button } from "../components/ui/button";
 import { Trash2 } from "lucide-react";
-import { RELATIONSHIP_OPTIONS, MARITAL_STATUS_OPTIONS, SPIRITUAL_LIFE_OPTIONS } from "../types/membership";
-import type { Member, OtherName } from "../types/membership";
+import { RELATIONSHIP_OPTIONS, MARITAL_STATUS_OPTIONS, SPIRITUAL_LIFE_OPTIONS, GENDER_OPTIONS, US_STATES } from "../types/membership";
+import type { Address, Member, OtherName } from "../types/membership";
 
 interface MemberFormProps {
   member: Member | Omit<Member, 'relationship'>;
@@ -28,14 +28,30 @@ export const MemberForm = ({
   showRelationship = false,
   index,
 }: MemberFormProps) => {
-  const handleChange = (field: keyof Member, value: string | boolean | string[] | OtherName) => {
-    onChange({ ...member, [field]: value });
+  const handleChange = (field: keyof Member, value: string | boolean | string[] | OtherName | Address) => {
+    const updatedMember = { ...member, [field]: value };
+    
+    // If relationship is set to Spouse, automatically set marital status to Married
+    if (field === 'relationship' && value === 'Spouse') {
+      updatedMember.maritalStatus = 'Married';
+    }
+    
+    onChange(updatedMember);
   };
+
+  const isSpouse = showRelationship && (member as Member).relationship === 'Spouse';
 
   const handleOtherNameChange = (field: keyof OtherName, value: string) => {
     onChange({
       ...member,
       otherName: { ...member.otherName, [field]: value }
+    });
+  };
+
+  const handleAddressChange = (field: keyof Address, value: string) => {
+    onChange({
+      ...member,
+      address: { ...member.address, [field]: value }
     });
   };
 
@@ -90,7 +106,7 @@ export const MemberForm = ({
       {/* Name Fields */}
       <div className="grid grid-cols-3 gap-2 print:gap-1">
         <div className="space-y-1">
-          <Label htmlFor={`${prefix}-firstName`} className="text-xs font-medium text-primary">
+          <Label htmlFor={`${prefix}-firstName`} className="text-xs font-medium">
             First Name <span className="text-destructive">*</span>
           </Label>
           <Input
@@ -183,8 +199,28 @@ export const MemberForm = ({
         )}
       </div>
 
-      {/* Contact & Personal Info */}
-      <div className="grid grid-cols-4 gap-2 print:gap-1">
+            {/* Gender, DOB, Marital Status */}
+      <div className="grid grid-cols-3 gap-2 print:gap-1">
+        <div className="space-y-1">
+          <Label htmlFor={`${prefix}-gender`} className="text-xs font-medium">
+            Gender <span className="text-destructive">*</span>
+          </Label>
+          <Select
+            value={member.gender}
+            onValueChange={(value) => handleChange('gender', value)}
+          >
+            <SelectTrigger id={`${prefix}-gender`} className="h-8 print:h-6 print:text-xs">
+              <SelectValue placeholder="Select" />
+            </SelectTrigger>
+            <SelectContent>
+              {GENDER_OPTIONS.map((gender) => (
+                <SelectItem key={gender} value={gender}>
+                  {gender}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         <div className="space-y-1">
           <Label htmlFor={`${prefix}-dob`} className="text-xs font-medium">
             Date of Birth <span className="text-destructive">*</span>
@@ -199,40 +235,13 @@ export const MemberForm = ({
           />
         </div>
         <div className="space-y-1">
-          <Label htmlFor={`${prefix}-email`} className="text-xs font-medium">
-            Email <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id={`${prefix}-email`}
-            type="email"
-            value={member.email}
-            onChange={(e) => handleChange('email', e.target.value)}
-            placeholder="email@example.com"
-            className="h-8 text-sm print:h-6 print:text-xs"
-            required
-          />
-        </div>
-        <div className="space-y-1">
-          <Label htmlFor={`${prefix}-phone`} className="text-xs font-medium">
-            Phone Number <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id={`${prefix}-phone`}
-            type="tel"
-            value={member.phoneNumber}
-            onChange={(e) => handleChange('phoneNumber', e.target.value)}
-            placeholder="(123) 456-7890"
-            className="h-8 text-sm print:h-6 print:text-xs"
-            required
-          />
-        </div>
-        <div className="space-y-1">
           <Label htmlFor={`${prefix}-maritalStatus`} className="text-xs font-medium">
             Marital Status
           </Label>
           <Select
-            value={member.maritalStatus}
+            value={isSpouse ? 'Married' : member.maritalStatus}
             onValueChange={(value) => handleChange('maritalStatus', value)}
+            disabled={isSpouse}
           >
             <SelectTrigger id={`${prefix}-maritalStatus`} className="h-8 print:h-6 print:text-xs">
               <SelectValue placeholder="Select" />
@@ -248,24 +257,105 @@ export const MemberForm = ({
         </div>
       </div>
 
-      {/* Address */}
-      <div className="space-y-1">
-        <Label htmlFor={`${prefix}-address`} className="text-xs font-medium">
-          Address
-        </Label>
-        <Input
-          id={`${prefix}-address`}
-          value={member.address}
-          onChange={(e) => handleChange('address', e.target.value)}
-          placeholder="Street, City, State, ZIP"
-          className="h-8 text-sm print:h-6 print:text-xs"
-        />
+      {/* Email and Phone Number */}
+      <div className="grid grid-cols-2 gap-2 print:gap-1">
+        <div className="space-y-1">
+          <Label htmlFor={`${prefix}-email`} className="text-xs font-medium">
+            Email
+          </Label>
+          <Input
+            id={`${prefix}-email`}
+            type="email"
+            value={member.email}
+            onChange={(e) => handleChange('email', e.target.value)}
+            placeholder="email@example.com"
+            className="h-8 text-sm print:h-6 print:text-xs"
+          />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor={`${prefix}-phone`} className="text-xs font-medium">
+            Phone Number
+          </Label>
+          <Input
+            id={`${prefix}-phone`}
+            type="tel"
+            value={member.phoneNumber}
+            onChange={(e) => handleChange('phoneNumber', e.target.value)}
+            placeholder="(123) 456-7890"
+            className="h-8 text-sm print:h-6 print:text-xs"
+          />
+        </div>
+      </div>
+
+      {/* Address Fields */}
+      <div className="space-y-2">
+        <Label className="text-xs font-medium">Address</Label>
+        <div className="grid grid-cols-4 gap-2 print:gap-1">
+          <div className="col-span-2 space-y-1">
+            <Label htmlFor={`${prefix}-street`} className="text-xs text-muted-foreground">
+              Street Address
+            </Label>
+            <Input
+              id={`${prefix}-street`}
+              value={member.address.street}
+              onChange={(e) => handleAddressChange('street', e.target.value)}
+              placeholder="123 Main Street"
+              className="h-8 text-sm print:h-6 print:text-xs"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor={`${prefix}-city`} className="text-xs text-muted-foreground">
+              City
+            </Label>
+            <Input
+              id={`${prefix}-city`}
+              value={member.address.city}
+              onChange={(e) => handleAddressChange('city', e.target.value)}
+              placeholder="City"
+              className="h-8 text-sm print:h-6 print:text-xs"
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <Label htmlFor={`${prefix}-state`} className="text-xs text-muted-foreground">
+                State
+              </Label>
+              <Select
+                value={member.address.state}
+                onValueChange={(value) => handleAddressChange('state', value)}
+              >
+                <SelectTrigger id={`${prefix}-state`} className="h-8 print:h-6 print:text-xs">
+                  <SelectValue placeholder="State" />
+                </SelectTrigger>
+                <SelectContent>
+                  {US_STATES.map((state) => (
+                    <SelectItem key={state.value} value={state.value}>
+                      {state.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor={`${prefix}-zipCode`} className="text-xs text-muted-foreground">
+                ZIP Code
+              </Label>
+              <Input
+                id={`${prefix}-zipCode`}
+                value={member.address.zipCode}
+                onChange={(e) => handleAddressChange('zipCode', e.target.value)}
+                placeholder="12345"
+                className="h-8 text-sm print:h-6 print:text-xs"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Spiritual Life */}
       <div className="space-y-1">
-        <Label className="text-xs font-medium h-1">Spiritual Life</Label>
-        <div className="flex gap-4 mt-2">
+        <Label className="text-xs font-medium">Spiritual Life</Label>
+        <div className="flex gap-4">
           {SPIRITUAL_LIFE_OPTIONS.map((option) => (
             <div key={option} className="flex items-center space-x-2">
               <Checkbox

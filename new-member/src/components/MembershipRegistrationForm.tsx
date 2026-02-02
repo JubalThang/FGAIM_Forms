@@ -7,9 +7,10 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { MemberForm } from "./MemberForm";
-import type { Member, MembershipForm, OtherName } from "../types/membership";
+import type { Address, Member, MembershipForm, OtherName } from "../types/membership";
 import { Printer, UserPlus, Users, Loader2 } from "lucide-react";
 import fga_logo from "../assets/fga-logo.jpg";
+import { MembershipCommitment } from "./MembershipCommitment";
 // import { GoogleSheetsConfig } from "./GoogleSheetsConfig";
 // import { useGoogleSheets } from "@/hooks/useGoogleSheets";
 
@@ -19,6 +20,13 @@ const createEmptyOtherName = (): OtherName => ({
   lastName: "",
 });
 
+const createEmptyAddress = (): Address => ({
+  street: "",
+  city: "",
+  state: "",
+  zipCode: "",
+});
+    
 const createEmptyMember = (isAssignee = false): Member => ({
   id: crypto.randomUUID(),
   firstName: "",
@@ -26,10 +34,11 @@ const createEmptyMember = (isAssignee = false): Member => ({
   lastName: "",
   otherName: createEmptyOtherName(),
   hasOtherName: false,
+  gender: "",
   dateOfBirth: "",
   email: "",
   phoneNumber: "",
-  address: "",
+  address: createEmptyAddress(),
   maritalStatus: "",
   spiritualLife: [],
   relationship: isAssignee ? "" : "",
@@ -39,6 +48,8 @@ export const MembershipRegistrationForm = () => {
   const [formData, setFormData] = useState<MembershipForm>({
     assignee: createEmptyMember(true),
     additionalMembers: [],
+    membershipCommitment: false,
+    signatureDate: new Date().toISOString().split("T")[0],
   });
 
   //   const { config, setConfig, submitToGoogleSheets, isSubmitting } = useGoogleSheets();
@@ -216,6 +227,26 @@ export const MembershipRegistrationForm = () => {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Membership Commitment Section */}
+          <Card className="form-card shadow-md border-border print:shadow-none">
+            <CardHeader className="bg-primary/5 border-b border-border rounded-t-lg py-2 print:py-1">
+              <CardTitle className="text-base font-semibold text-primary flex items-center gap-2 print:text-sm">
+                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold print:w-4 print:h-4 print:text-[10px]">
+                  3
+                </span>
+                Membership Commitment
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-4 print:pt-2 print:pb-2">
+              <MembershipCommitment
+                isChecked={formData.membershipCommitment}
+                signatureDate={formData.signatureDate}
+                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, membershipCommitment: checked }))}
+                onDateChange={(date) => setFormData(prev => ({ ...prev, signatureDate: date }))}
+              />
             </CardContent>
           </Card>
 
