@@ -52,6 +52,8 @@ export const MembershipRegistrationForm = () => {
     signatureDate: new Date().toISOString().split("T")[0],
   });
 
+  const showRelationship = formData.additionalMembers.length > 0;
+
   //   const { config, setConfig, submitToGoogleSheets, isSubmitting } = useGoogleSheets();
 
   const handleAssigneeChange = (assignee: Omit<Member, "relationship">) => {
@@ -144,7 +146,7 @@ export const MembershipRegistrationForm = () => {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 print:space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-4 print:hidden">
           {/* Primary Assignee Section */}
           <Card className="form-card shadow-md border-border print:shadow-none">
             <CardHeader className="bg-primary/5 border-b border-border rounded-t-lg py-2 print:py-1">
@@ -285,6 +287,39 @@ export const MembershipRegistrationForm = () => {
             </div>
           </div>
         </form>
+
+        {/* Print Spreadsheet (hidden on screen, visible in print) */}
+        <div className="hidden print:block mt-4">
+          <h3 className="text-sm font-semibold text-primary text-center mb-2">
+            Assignees Spreadsheet
+          </h3>
+          <table className="w-full border-collapse text-[10px]">
+            <thead>
+              <tr>
+                <th className="border px-2 py-1 text-left">Name</th>
+                <th className="border px-2 py-1 text-left">Gender</th>
+                <th className="border px-2 py-1 text-left">Marital Status</th>
+                {showRelationship && (
+                  <th className="border px-2 py-1 text-left">Relationship</th>
+                )}
+              </tr>
+            </thead>
+            <tbody>
+              {[formData.assignee, ...formData.additionalMembers].map((m) => (
+                <tr key={m.id}>
+                  <td className="border px-2 py-1">
+                    {`${m.firstName}${m.middleName ? " " + m.middleName : ""} ${m.lastName}`.replace(/\s+/g, " ").trim()}
+                  </td>
+                  <td className="border px-2 py-1">{m.gender || ""}</td>
+                  <td className="border px-2 py-1">{m.maritalStatus || ""}</td>
+                  {showRelationship && (
+                    <td className="border px-2 py-1">{m.relationship || ""}</td>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         {/* Footer for print */}
         <div className="hidden print:block mt-4 pt-2 border-t border-border text-center text-[10px] text-muted-foreground">

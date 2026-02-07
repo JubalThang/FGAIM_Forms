@@ -28,7 +28,7 @@ export interface Member {
 }
 
 export interface MembershipForm {
-  assignee: Omit<Member, 'relationship'>;
+  assignee: Member;
   additionalMembers: Member[];
   membershipCommitment: boolean;
   signatureDate: string;
