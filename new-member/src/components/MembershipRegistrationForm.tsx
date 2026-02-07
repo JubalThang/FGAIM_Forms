@@ -7,8 +7,13 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { MemberForm } from "./MemberForm";
-import type { Address, Member, MembershipForm, OtherName } from "../types/membership";
-import { Printer, UserPlus, Users, Loader2 } from "lucide-react";
+import type {
+  Address,
+  Member,
+  MembershipForm,
+  OtherName,
+} from "../types/membership";
+import { Printer, UserPlus, Users } from "lucide-react";
 import fga_logo from "../assets/fga-logo.jpg";
 import { MembershipCommitment } from "./MembershipCommitment";
 // import { GoogleSheetsConfig } from "./GoogleSheetsConfig";
@@ -26,7 +31,7 @@ const createEmptyAddress = (): Address => ({
   state: "",
   zipCode: "",
 });
-    
+
 const createEmptyMember = (isAssignee = false): Member => ({
   id: crypto.randomUUID(),
   firstName: "",
@@ -57,7 +62,10 @@ export const MembershipRegistrationForm = () => {
   //   const { config, setConfig, submitToGoogleSheets, isSubmitting } = useGoogleSheets();
 
   const handleAssigneeChange = (assignee: Omit<Member, "relationship">) => {
-    setFormData((prev) => ({ ...prev, assignee }));
+    setFormData((prev) => ({
+      ...prev,
+      assignee: { ...assignee, relationship: "" },
+    }));
   };
 
   const handleMemberChange = (index: number, member: Member) => {
@@ -102,15 +110,15 @@ export const MembershipRegistrationForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background py-4 px-4 print:py-2 print:px-2">
-      <div className="print-container max-w-4xl mx-auto print:max-w-full">
+    <div className="min-h-screen py-4 px-4 print:py-2 print:px-2 print:flex print:flex-col">
+      <div className="print-container max-w-4xl  mx-auto print:min-w-full print:flex-1 print:flex print:flex-col">
         {/* Letterhead Header */}
         <div className="bg-card border border-border rounded-lg p-4 mb-4 print:p-3 print:mb-2 print:border-primary/20">
           <div className="flex items-center gap-4 print:gap-3">
-            {/* Organization Logo/Photo */}
+            {/* Logo Container */}
             <div className="shrink-0">
               <div className="w-25 h-25 rounded-full border-2 border-primary/5 bg-primary/5 flex items-center justify-center overflow-hidden print:w-16 print:h-16">
-                {/* Placeholder for organization logo - replace src with actual logo */}
+                {/* fgaim logo */}
                 <img
                   src={fga_logo}
                   alt="Organization Logo"
@@ -126,10 +134,10 @@ export const MembershipRegistrationForm = () => {
                   Full Gospel Assembly International Ministries
                 </h1>
                 <p className="text-sm text-muted-foreground print:text-xs">
-                  123 Main Street, City, State 12345
+                  9100 E 151st St S, Bixby, OK 74008
                 </p>
                 <p className="text-sm text-muted-foreground print:text-xs">
-                  Phone: (123) 456-7890 | Email: info@organization.org
+                  Phone: (918) 557-5153 | Email: contact@fgaim.church
                 </p>
               </div>
             </div>
@@ -246,8 +254,15 @@ export const MembershipRegistrationForm = () => {
               <MembershipCommitment
                 isChecked={formData.membershipCommitment}
                 signatureDate={formData.signatureDate}
-                onCheckedChange={(checked) => setFormData(prev => ({ ...prev, membershipCommitment: checked }))}
-                onDateChange={(date) => setFormData(prev => ({ ...prev, signatureDate: date }))}
+                onCheckedChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    membershipCommitment: checked,
+                  }))
+                }
+                onDateChange={(date) =>
+                  setFormData((prev) => ({ ...prev, signatureDate: date }))
+                }
               />
             </CardContent>
           </Card>
@@ -291,7 +306,7 @@ export const MembershipRegistrationForm = () => {
         {/* Print Spreadsheet (hidden on screen, visible in print) */}
         <div className="hidden print:block mt-4">
           <h3 className="text-sm font-semibold text-primary text-center mb-2">
-            Assignees Spreadsheet
+            Assignees
           </h3>
           <table className="w-full border-collapse text-[10px]">
             <thead>
@@ -308,7 +323,9 @@ export const MembershipRegistrationForm = () => {
               {[formData.assignee, ...formData.additionalMembers].map((m) => (
                 <tr key={m.id}>
                   <td className="border px-2 py-1">
-                    {`${m.firstName}${m.middleName ? " " + m.middleName : ""} ${m.lastName}`.replace(/\s+/g, " ").trim()}
+                    {`${m.firstName}${m.middleName ? " " + m.middleName : ""} ${m.lastName}`
+                      .replace(/\s+/g, " ")
+                      .trim()}
                   </td>
                   <td className="border px-2 py-1">{m.gender || ""}</td>
                   <td className="border px-2 py-1">{m.maritalStatus || ""}</td>
@@ -322,11 +339,9 @@ export const MembershipRegistrationForm = () => {
         </div>
 
         {/* Footer for print */}
-        <div className="hidden print:block mt-4 pt-2 border-t border-border text-center text-[10px] text-muted-foreground">
+        <div className="hidden print:flex justify-between mt-4 pb-4 border-b border-border text-center text-[10px] text-muted-foreground print:mt-auto">
+          <p>Signature: _________________________</p>
           <p>Registration Date: {new Date().toLocaleDateString()}</p>
-          <p className="mt-1">
-            Signature: _________________________ Date: _____________
-          </p>
         </div>
       </div>
     </div>
