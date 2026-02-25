@@ -3,11 +3,13 @@ import { Button } from "./components/ButtonContainer";
 export const buttons : Button[] = [
     {
       "name": "Membership Form",
-      "link": "https://www.jotform.com/build/233384594517162"
+      "link": "https://memembershipform.netlify.app/",
+      "isActive": true
     },
     {
       "name": "Baby Dedication Form",
-      "link": "https://form.jotform.com/233624310013136"
+      "link": "https://form.jotform.com/233624310013136",
+      "isActive": false
     },
     // {
     //   "name": "Submission",

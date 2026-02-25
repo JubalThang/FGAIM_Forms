@@ -12,7 +12,7 @@ function App() {
             <div className=" w-full gap-20 grid lg:grid-cols-2 ">
               {
                 buttons.map(button => (
-                  <ButtonContainer key={button.name} name={button.name} link={button.link}/>
+                  <ButtonContainer key={button.name} name={button.name} link={button.link} isActive={button.isActive} />
                 ))
               }
             </div>      
